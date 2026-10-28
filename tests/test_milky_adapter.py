@@ -142,7 +142,7 @@ async def test_quote_media_and_mentions(service):
         (MessageType.GROUP_MESSAGE, "200_300", "send_group_message", "group_id", 300),
     ],
 )
-async def test_proactive_send_and_face_fallback(
+async def test_proactive_send_and_native_faces(
     service, kind, session_id, action, key, peer
 ):
     adapter, calls = service
@@ -158,10 +158,24 @@ async def test_proactive_send_and_face_fallback(
                 {"type": "text", "data": {"text": "hello"}},
                 {"type": "mention", "data": {"user_id": 123}},
                 {"type": "reply", "data": {"message_seq": 7}},
-                {"type": "text", "data": {"text": "[QQ表情:1]"}},
+                {"type": "face", "data": {"face_id": "1", "is_large": False}},
             ],
         },
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("face_id", ["9", "277"])
+async def test_receive_native_faces(service, face_id):
+    adapter, _ = service
+    payload = envelope("friend")
+    payload["data"]["segments"] = [
+        {"type": "face", "data": {"face_id": face_id, "is_large": False}}
+    ]
+    await adapter.handle_event(payload)
+    event = adapter._event_queue.get_nowait()
+    assert isinstance(event.message_obj.message[0], Face)
+    assert event.message_obj.message[0].id == int(face_id)
 
 
 @pytest.mark.asyncio

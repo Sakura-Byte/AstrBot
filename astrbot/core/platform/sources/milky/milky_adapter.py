@@ -252,9 +252,11 @@ class MilkyAdapter(Platform):
                     {"type": "reply", "data": {"message_seq": int(component.id)}}
                 )
             elif isinstance(component, Face):
-                # Lagrange.Milky currently has no outgoing face segment converter.
                 segments.append(
-                    {"type": "text", "data": {"text": f"[QQ表情:{component.id}]"}}
+                    {
+                        "type": "face",
+                        "data": {"face_id": str(component.id), "is_large": False},
+                    }
                 )
             elif isinstance(component, Image | Record | Video):
                 if isinstance(component, Image | Record):
