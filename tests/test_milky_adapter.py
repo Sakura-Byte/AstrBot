@@ -1,4 +1,6 @@
 import asyncio
+import base64
+import wave
 from unittest.mock import AsyncMock
 
 import pytest
@@ -6,7 +8,7 @@ import pytest_asyncio
 from aiohttp import web
 
 from astrbot.api.event import MessageChain
-from astrbot.api.message_components import At, Face, Image, Plain, Reply
+from astrbot.api.message_components import At, Face, Image, Plain, Record, Reply
 from astrbot.api.platform import MessageType
 from astrbot.core.platform.message_session import MessageSession
 from astrbot.core.platform.sources.milky.milky_adapter import MilkyAdapter
@@ -190,6 +192,26 @@ async def test_image_is_portable_base64(service, monkeypatch):
         "uri": "base64://aW1hZ2U=",
         "sub_type": "normal",
     }
+
+
+@pytest.mark.asyncio
+async def test_tts_wav_is_encoded_as_tencent_silk(service, tmp_path):
+    adapter, calls = service
+    audio = tmp_path / "tts.wav"
+    with wave.open(str(audio), "wb") as output:
+        output.setnchannels(1)
+        output.setsampwidth(2)
+        output.setframerate(24000)
+        output.writeframes(b"\x00\x00" * 24000)
+    await adapter.send_by_session(
+        MessageSession("milky-test", MessageType.FRIEND_MESSAGE, "200"),
+        MessageChain([Record(file=str(audio))]),
+    )
+    segment = calls[-1][1]["message"][0]
+    assert segment["type"] == "record"
+    payload = base64.b64decode(segment["data"]["uri"].removeprefix("base64://"))
+    assert payload.startswith(b"\x02#!SILK_V3")
+    assert audio.is_file()
 
 
 @pytest.mark.asyncio

@@ -259,7 +259,11 @@ class MilkyAdapter(Platform):
                     }
                 )
             elif isinstance(component, Image | Record | Video):
-                if isinstance(component, Image | Record):
+                if isinstance(component, Record):
+                    encoded = await MediaResolver(
+                        component.file or component.url, media_type="audio"
+                    ).to_base64(target_format="tencent_silk")
+                elif isinstance(component, Image):
                     encoded = await component.convert_to_base64()
                 else:
                     path = Path(await component.convert_to_file_path())
