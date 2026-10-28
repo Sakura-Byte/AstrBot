@@ -368,6 +368,13 @@ CONFIG_METADATA_2 = {
                         "callback_server_host": "0.0.0.0",
                         "port": 6196,
                     },
+                    "Milky (Lagrange V2)": {
+                        "id": "milky",
+                        "type": "milky",
+                        "enable": True,
+                        "milky_url": "http://127.0.0.1:3000",
+                        "milky_token": "",
+                    },
                     "OneBot v11": {
                         "id": "default",
                         "type": "aiocqhttp",
@@ -956,6 +963,16 @@ CONFIG_METADATA_2 = {
                         "description": "主动消息使用 Markdown",
                         "type": "bool",
                         "hint": "启用后，机器人主动发送消息默认以 Markdown 模式发送；插件显式调用 use_markdown() 指定行为时不受此配置影响。",
+                    },
+                    "milky_url": {
+                        "description": "Milky service URL",
+                        "type": "string",
+                        "hint": "Service root URL, for example http://127.0.0.1:3000. API and event paths are appended automatically.",
+                    },
+                    "milky_token": {
+                        "description": "Milky access token",
+                        "type": "string",
+                        "secret": True,
                     },
                     "ws_reverse_host": {
                         "description": "反向 Websocket 主机",

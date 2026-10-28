@@ -151,6 +151,10 @@ class PlatformManager:
                 },
             )
             match platform_config["type"]:
+                case "milky":
+                    from .sources.milky.milky_adapter import (
+                        MilkyAdapter,  # noqa: F401
+                    )
                 case "aiocqhttp":
                     from .sources.aiocqhttp.aiocqhttp_platform_adapter import (
                         AiocqhttpAdapter,  # noqa: F401
