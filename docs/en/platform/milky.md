@@ -13,3 +13,5 @@ Outgoing voice recordings, including WAV output from TTS providers, are encoded 
 Native QQ faces use the standard Milky `face` segment with a string `face_id` and `is_large: false`. Deploy the patched Lagrange V2 core and Milky converter to send and receive both legacy and modern system faces. Animated large faces are receive-only. Enable Dafeiyu's original text-to-face conversion by removing the previous early return for Milky.
 
 Forwarded messages and files are not sent through generic message chains; native file upload APIs remain available. Plugins using OneBot-specific APIs require adaptation. Vision, speech recognition, and TTS require separate model credentials.
+
+Incoming file segments are exposed to plugins as `File` components when Milky supplies an HTTP download URL or a resolvable media resource ID. An opaque file ID alone is shown as unavailable; the adapter does not invent a download URL. Receiving ordinary private files still depends on the Lagrange V2 core implementation.

@@ -25,3 +25,5 @@ AstrBot 通过 `/api/<action>` 调用 HTTP API，通过 `/event` 订阅 WebSocke
 QQ 原生表情使用标准 Milky `face` 消息段，`face_id` 为字符串，`is_large` 默认为 `false`。需要部署包含原生表情补丁的 Lagrange V2：旧版表情（如流泪）和新版表情（如旺柴）均可收发；超级表情暂只支持接收。大肥鱼插件应启用原有的文字转表情逻辑，移除先前针对 Milky 的提前返回。
 
 合并转发和文件暂不经过通用消息链发送；文件可通过原生 `upload_private_file` / `upload_group_file` 接口发送。依赖 OneBot 专有接口或事件结构的插件需要单独适配。视觉、语音识别及 TTS 仍需配置对应模型 API。
+
+接收文件消息段时，如果 Milky 提供 HTTP 下载地址或可解析的媒体资源 ID，适配器会保留为插件可下载的 `File` 组件。只有不透明文件 ID 时会明确显示文件不可用，不会编造下载地址。QQ 普通私聊文件能否上报仍取决于 Lagrange V2 核心实现。

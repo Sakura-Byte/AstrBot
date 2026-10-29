@@ -173,9 +173,17 @@ class MilkyAdapter(Platform):
                     if preview := data.get("preview"):
                         components.append(Plain("\n".join(preview)))
                 case "file":
-                    components.append(
-                        Plain(f"[File: {data.get('file_name', 'attachment')}]")
-                    )
+                    name = data.get("file_name", "attachment")
+                    url = data.get("temp_url")
+                    if not url and data.get("resource_id"):
+                        resource = await self.call_action(
+                            "get_resource_temp_url", resource_id=data["resource_id"]
+                        )
+                        url = resource["url"]
+                    if url and urlsplit(url).scheme in ("http", "https"):
+                        components.append(File(name=name, url=url))
+                    else:
+                        components.append(Plain(f"[File unavailable: {name}]"))
                 case "light_app":
                     components.append(Plain(data.get("app_name") or "[App card]"))
         return components

@@ -8,7 +8,7 @@ import pytest_asyncio
 from aiohttp import web
 
 from astrbot.api.event import MessageChain
-from astrbot.api.message_components import At, Face, Image, Plain, Record, Reply
+from astrbot.api.message_components import At, Face, File, Image, Plain, Record, Reply
 from astrbot.api.platform import MessageType
 from astrbot.core.platform.message_session import MessageSession
 from astrbot.core.platform.sources.milky.milky_adapter import MilkyAdapter
@@ -109,6 +109,41 @@ async def test_self_and_notice_events_are_ignored(service):
     await adapter.handle_event(payload)
     await adapter.handle_event({"event_type": "message_recall"})
     assert adapter._event_queue.empty()
+
+
+@pytest.mark.asyncio
+async def test_downloadable_files_keep_real_sources(service):
+    adapter, calls = service
+    parts = await adapter.convert_segments(
+        [
+            {
+                "type": "file",
+                "data": {
+                    "file_name": "song.mp3",
+                    "temp_url": "https://example.com/song.mp3",
+                },
+            },
+            {
+                "type": "file",
+                "data": {"file_name": "score.mid", "resource_id": "score"},
+            },
+            {
+                "type": "file",
+                "data": {"file_name": "unavailable.mp3", "file_id": "opaque"},
+            },
+            {
+                "type": "file",
+                "data": {"file_name": "unsafe.wav", "temp_url": "file:///etc/passwd"},
+            },
+        ]
+    )
+    assert isinstance(parts[0], File)
+    assert parts[0].name == "song.mp3"
+    assert parts[0].url == "https://example.com/song.mp3"
+    assert isinstance(parts[1], File)
+    assert calls == [("get_resource_temp_url", {"resource_id": "score"})]
+    assert isinstance(parts[2], Plain)
+    assert isinstance(parts[3], Plain)
 
 
 @pytest.mark.asyncio
